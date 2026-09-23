@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gym Log of Whimsy and Joy</title>
+  <style>
+    :root { --ink:#182b25; --cream:#f7ecc9; --moss:#244f43; --leaf:#78a45b; --sky:#2e639b; --peach:#d49b3f; --card:#fff9e8; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:16px/1.45 Georgia, serif; color:var(--ink); background:radial-gradient(circle at 20% 8%,#f5d36a 0 4%,transparent 5%),linear-gradient(#245d83 0 23%,#d7c477 23% 24%,#54733d 24% 100%); min-height:100vh; }
+    main { width:min(1000px,92vw); margin:34px auto; background:rgba(255,249,232,.94); border:4px solid #244f43; border-radius:8px 8px 26px 26px; padding:clamp(20px,4vw,42px); box-shadow:0 16px 0 rgba(18,41,34,.32), inset 0 0 0 5px #d49b3f; }
+    h1,h2 { margin:.1em 0 .4em; } h1 { font-size:clamp(2rem,5vw,3.6rem); color:var(--moss); text-shadow:2px 2px 0 #e6c15d; } h2 { color:var(--moss); border-bottom:2px solid #d49b3f; }
+    .subtitle { margin-top:0; color:#526958; }
+    .panel { background:var(--card); border:2px solid #a67f2d; border-radius:12px; padding:20px; margin:20px 0; box-shadow:0 5px 0 #d4bd78; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(165px,1fr)); gap:12px; }
+    label { display:grid; gap:5px; font-weight:bold; }
+    input,select,button { font:inherit; border-radius:5px; padding:10px; border:1px solid #9b7b36; background:#fffdf4; color:var(--ink); }
+    button { background:linear-gradient(#3e795d,#244f43); color:#fff5cf; border:2px solid #d49b3f; cursor:pointer; font-weight:bold; } button:hover { background:#1b3f35; }
+    .hidden { display:none; }
+    table { width:100%; border-collapse:collapse; margin-top:14px; font-size:.92rem; } th,td { text-align:left; padding:9px; border-bottom:1px solid #d6d9c7; }
+    th { color:var(--moss); } .delete { background:transparent; color:#a74736; padding:2px; }
+    .hint { font-size:.9rem; color:#617568; }
+    .routine { columns:2; gap:22px; } .routine li { margin:.35em 0; } @media(max-width:650px){ .routine { columns:1; } table{display:block;overflow-x:auto;} }
+    .chart { width:100%; height:230px; background:#e5efd0; border:2px solid #a67f2d; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🌿 Gym Log of Whimsy and Joy</h1>
+    <p class="subtitle">A hero's training ledger for strength, stamina, and steady progress.</p>
+
+    <section class="panel">
+      <h2>Today's Log</h2>
+      <div class="grid">
+        <label>Date <input id="date" type="date"></label>
+        <label>Workout day <select id="day"><option value="Upper">Upper</option><option value="Lower">Lower</option><option value="Cardio">Cardio</option></select></label>
+        <label>Exercise <select id="exercise"></select></label>
+      </div>
+      <div id="liftFields" class="grid" style="margin-top:12px">
+        <label>Weight (lb) <input id="weight" type="number" min="0" step="2.5"></label>
+        <label>Reps <input id="reps" type="number" min="0"></label>
+        <label>Sets <input id="sets" type="number" min="0"></label>
+      </div>
+      <div id="cardioFields" class="grid hidden" style="margin-top:12px">
+        <label>Duration (min) <input id="duration" type="number" min="0"></label>
+        <label>Distance (mi) <input id="distance" type="number" min="0" step=".01"></label>
+        <label>Intensity <input id="intensity" placeholder="Incline 12, speed 3, level 6"></label>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <label style="grid-column:span 2">Notes <input id="notes" placeholder="Form cue, how it felt, or a PR"></label>
+        <button id="save" style="align-self:end">Add to log</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Current Paths</h2>
+      <div class="routine">
+        <div><strong>Upper</strong><ul><li>Chest / shoulder press — 45 lb × 8</li><li>Hammer curls — 30–35 lb × 8–10</li><li>Lateral raises — 17.5–20 lb</li><li>Triceps pressdown — 42.5 lb × 12</li><li>Machine row — 100 lb × 8</li><li>Weighted pull-ups — +30 lb</li></ul></div>
+        <div><strong>Lower</strong><ul><li>Hamstring curl — 145 lb</li><li>Leg extension — 160 lb</li><li>Hip abductor — 160 lb (width 6)</li><li>Hip thrust — 3 plates + 25 lb</li><li>Leg press — 2 plates + 20 lb × 7</li><li>Ab curls — 10–25 lb</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Progress</h2>
+      <label>Chart an exercise <select id="chartExercise"></select></label>
+      <svg class="chart" id="chart" viewBox="0 0 700 230" aria-label="Weight progress chart"></svg>
+      <p class="hint">The chart shows weight over time. Your entries stay on this device.</p>
+    </section>
+
+    <section class="panel"><h2>Logbook</h2><div id="table"></div></section>
+  </main>
+  <script>
+    const workouts = {
+      Upper:["Chest / Shoulder Press","Hammer Curls","Lateral Raises","Triceps Pressdown","Machine Row","Weighted Pull-Ups","Shrugs","Wrist Curls","Reverse Wrist Curls"],
+      Lower:["Hamstring Curl","Leg Extension","Hip Abductor","Hip Thrust","RDL / Back Extension","Leg Press","Ab Curls"],
+      Cardio:["Incline Treadmill","StairMaster","Bike","Run","Walk","Other"]
+    };
+    const $=id=>document.getElementById(id), log=JSON.parse(localStorage.getItem('moGymLog')||'[]');
+    $('date').value=new Date().toISOString().slice(0,10);
+    function choices(){ const day=$('day').value; $('exercise').innerHTML=workouts[day].map(x=>`<option>${x}</option>`).join(''); $('liftFields').classList.toggle('hidden',day==='Cardio'); $('cardioFields').classList.toggle('hidden',day!=='Cardio'); }
+    function chartChoices(){ const values=[...new Set(log.filter(x=>x.day!=='Cardio').map(x=>x.exercise))]; $('chartExercise').innerHTML=values.length?values.map(x=>`<option>${x}</option>`).join(''):'<option>No lift entries yet</option>'; }
+    function draw(){ const ex=$('chartExercise').value, data=log.filter(x=>x.exercise===ex&&x.weight).sort((a,b)=>a.date.localeCompare(b.date)); const s=$('chart'); if(!data.length){s.innerHTML='<text x="350" y="118" text-anchor="middle" fill="#617568">Add lift entries to see progress</text>';return;} const max=Math.max(...data.map(x=>x.weight)), min=Math.min(...data.map(x=>x.weight)), span=Math.max(1,max-min); const pts=data.map((x,i)=>`${50+i*(600/Math.max(1,data.length-1))},${190-(x.weight-min)/span*140}`).join(' '); s.innerHTML=`<line x1="50" y1="190" x2="650" y2="190" stroke="#49683f"/><line x1="50" y1="30" x2="50" y2="190" stroke="#49683f"/><polyline points="${pts}" fill="none" stroke="#f3b987" stroke-width="5"/><text x="15" y="40" fill="#49683f">${max} lb</text><text x="15" y="190" fill="#49683f">${min} lb</text>`; }
+    function render(){ chartChoices(); draw(); $('table').innerHTML=log.length?`<table><tr><th>Date</th><th>Day</th><th>Exercise</th><th>Details</th><th>Notes</th><th></th></tr>${log.map((x,i)=>`<tr><td>${x.date}</td><td>${x.day}</td><td>${x.exercise}</td><td>${x.day==='Cardio'?`${x.duration||0} min · ${x.distance||0} mi · ${x.intensity||''}`:`${x.weight||0} lb · ${x.reps||0} reps · ${x.sets||0} sets`}</td><td>${x.notes||''}</td><td><button class="delete" onclick="removeLog(${i})">×</button></td></tr>`).join('')}</table>`:'<p class="hint">Your first entry will appear here.</p>'; }
+    function removeLog(i){log.splice(i,1);localStorage.setItem('moGymLog',JSON.stringify(log));render();}
+    $('day').onchange=choices; $('chartExercise').onchange=draw;
+    $('save').onclick=()=>{ const day=$('day').value, item={date:$('date').value,day,exercise:$('exercise').value,notes:$('notes').value}; if(day==='Cardio')Object.assign(item,{duration:+$('duration').value||0,distance:+$('distance').value||0,intensity:$('intensity').value}); else Object.assign(item,{weight:+$('weight').value||0,reps:+$('reps').value||0,sets:+$('sets').value||0}); log.push(item);localStorage.setItem('moGymLog',JSON.stringify(log));['weight','reps','sets','duration','distance','intensity','notes'].forEach(id=>$(id).value='');render();};
+    choices();render();
+  </script>
+</body>
+</html>
